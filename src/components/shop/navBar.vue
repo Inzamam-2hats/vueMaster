@@ -13,6 +13,8 @@
     }
   })
 
+  const emit = defineEmits(['update:searchText'])
+
   // Categories list — later we can filter products by the active one
   const categories = ref([
     { name: 'All', href: '#' },
@@ -51,16 +53,17 @@
       </li>
     </ul>
 
-    <!-- C) Search — v-model keeps input text in searchText -->
+    <!-- C) Search — :value keeps input text in searchText -->
     <div class="nav-search">
       <svg width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="7" />
         <path d="M20 20l-3-3" />
       </svg>
       <input
-        v-model="searchText"
+        :value="searchText"
         type="search"
         placeholder="Search products..."
+        @input="emit('update:searchText', $event.target.value)"
       />
     </div>
   </header>

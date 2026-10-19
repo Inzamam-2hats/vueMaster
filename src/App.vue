@@ -1,5 +1,6 @@
 <script setup>
   // Imports
+  import { ref } from 'vue'
   import NavBar from './components/shop/navBar.vue'
   import productList from './components/shop/productList.vue'
   import FooterBar from './components/shop/footerBar.vue'
@@ -8,7 +9,9 @@
 </script>
 
 <template>
-  <NavBar />
-  <productList />
+  <NavBar :searchText="searchText"
+          @update:searchText="searchText = $event"
+  />
+  <productList :search="searchText" />
   <FooterBar />
 </template>

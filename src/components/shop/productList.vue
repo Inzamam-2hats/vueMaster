@@ -5,11 +5,18 @@
   3) Pass each product into <ProductCard>
 -->
 <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, computed } from 'vue'
   import ProductCard from './productCard.vue'
 
   const products = ref([])
   const loading = ref(true)
+
+  const props = defineProps({
+    search: {
+      type: String,
+      default: ''
+    }
+  })
 
   onMounted(() => {
     fetch('https://dummyjson.com/products?limit=10')
@@ -22,13 +29,26 @@
         loading.value = false
       })
   })
+
+  const filteredProducts = computed(() => {
+    const q = props.search.trim().toLowerCase()
+    if (!q) return products.value
+
+    return products.value.filter((product) =>
+      product.title.toLowerCase().includes(q)
+    )
+  })
 </script>
 
 <template>
   <section class="product-list-wrap">
-    <h1 class="page-title">Shop</h1>
+    <h1 v-if="!loading && !filteredProducts.length" class="page-title">Shop</h1>
 
     <p v-if="loading" class="status">Loading products...</p>
+
+    <p v-else-if="!loading && filteredProducts.length === 0" class="status">
+      No products found
+    </p>
 
     <div v-else class="product-grid">
       <!--
@@ -36,7 +56,7 @@
         ProductCard reads title, price, thumbnail, etc. from it.
       -->
       <ProductCard
-        v-for="product in products"
+        v-for="product in filteredProducts"
         :key="product.id"
         :product="product"
       />
