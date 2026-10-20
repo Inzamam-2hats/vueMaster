@@ -15,11 +15,17 @@
     search: {
       type: String,
       default: ''
+    },
+     category: {
+      type: String,
+      default: 'All'
     }
   })
 
+  const emit = defineEmits(['add-to-cart'])
+
   onMounted(() => {
-    fetch('https://dummyjson.com/products?limit=10')
+    fetch('https://dummyjson.com/products?limit=50')
       .then((res) => res.json())
       .then((data) => {
         products.value = data.products
@@ -32,11 +38,17 @@
 
   const filteredProducts = computed(() => {
     const q = props.search.trim().toLowerCase()
-    if (!q) return products.value
+    const cat = props.category
 
-    return products.value.filter((product) =>
-      product.title.toLowerCase().includes(q)
-    )
+    return products.value.filter((product) => {
+      const matchSearch = 
+      !q || product.title.toLowerCase().includes(q)
+
+      const matchCategory = 
+      cat === 'All' || product.category === cat
+
+      return matchSearch && matchCategory
+    })
   })
 </script>
 
@@ -59,6 +71,7 @@
         v-for="product in filteredProducts"
         :key="product.id"
         :product="product"
+        @add-to-cart="emit('add-to-cart', $event)"
       />
     </div>
   </section>

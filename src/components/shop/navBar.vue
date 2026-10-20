@@ -10,25 +10,31 @@
     searchText: {
       type: String,
       required: true
-    }
+    },
+    activeCategory: {
+      type: String,
+      required: true
+    },
+    cart: {
+      type: Number,
+      default: 0,
+    },
   })
 
-  const emit = defineEmits(['update:searchText'])
+  const emit = defineEmits(['update:searchText', 'update:activeCategory'])
 
   // Categories list — later we can filter products by the active one
   const categories = ref([
-    { name: 'All', href: '#' },
-    { name: 'Accessories', href: '#' },
-    { name: 'Appliances', href: '#' },
-    { name: 'Bags', href: '#' },
-    { name: 'Electronic', href: '#' },
-    { name: 'Kitchen', href: '#' },
+    { name: 'All', slug: 'All' },
+    { name: 'Beauty', slug: 'beauty' },
+    { name: 'Smartphones', slug: 'smartphones' },
+    { name: 'Laptops', slug: 'laptops' },
+    { name: 'Fragrances', slug: 'fragrances' },
+    { name: 'Groceries', slug: 'groceries' },
   ])
 
-  const activeCategory = ref('All')
-
   const selectCategory = (name) => {
-    activeCategory.value = name
+    emit('update:activeCategory', name)
   }
 </script>
 
@@ -44,9 +50,9 @@
     <ul class="nav-categories">
       <li v-for="item in categories" :key="item.name">
         <a
-          :href="item.href"
-          :class="{ active: activeCategory === item.name }"
-          @click.prevent="selectCategory(item.name)"
+          :href="item.slug || '#'"
+          :class="{ active: activeCategory === item.slug }"
+          @click.prevent="selectCategory(item.slug)"
         >
           {{ item.name }}
         </a>
@@ -66,6 +72,29 @@
         @input="emit('update:searchText', $event.target.value)"
       />
     </div>
+    <!-- D) Cart — Flipkart-style icon + badge -->
+    <a class="nav-cart" href="#" @click.prevent>
+      <span class="cart-icon-wrap">
+        <svg
+          class="cart-icon"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <circle cx="9" cy="20" r="1.5" fill="currentColor" stroke="none" />
+          <circle cx="18" cy="20" r="1.5" fill="currentColor" stroke="none" />
+          <path d="M3 4h2l2.4 11.2a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L21 8H7" />
+        </svg>
+        <span v-if="cart > 0" class="cart-badge">{{ cart > 9 ? '9+' : cart }}</span>
+      </span>
+      <span class="cart-label">Cart</span>
+    </a>
   </header>
 </template>
 
@@ -152,6 +181,54 @@
     color: #9ca3af;
   }
 
+  .nav-cart {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    color: #1f2937;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .nav-cart:hover {
+    color: #3b82f6;
+  }
+
+  .cart-icon-wrap {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+  }
+
+  .cart-icon {
+    display: block;
+  }
+
+  .cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #fbbf24;
+    color: #1f2937;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
+    border: 1.5px solid #ffffff;
+  }
+
+  .cart-label {
+    line-height: 1;
+  }
+
   @media (max-width: 900px) {
     .top-nav {
       flex-wrap: wrap;
@@ -173,6 +250,10 @@
     .nav-search {
       width: 100%;
       margin-left: 0;
+    }
+
+    .cart-label {
+      display: none;
     }
   }
 </style>

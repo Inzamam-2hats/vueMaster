@@ -13,6 +13,8 @@
     },
   })
 
+  const emit = defineEmits(['add-to-cart'])
+
   // DummyJSON gives price + discountPercentage → estimate old price
   const oldPrice = computed(() => {
     const discount = props.product.discountPercentage || 0
@@ -60,13 +62,16 @@
       </div>
 
       <div class="card-actions">
-        <button class="btn-cart" type="button">Add To Cart</button>
-        <button class="btn-buy" type="button">Buy Now</button>
+        <button class="btn-cart" 
+        type="button" 
+        @click="emit('add-to-cart', product.id);
+
+      ">Add To Cart</button>
+      <button class="btn-buy" type="button">Buy Now</button>
       </div>
     </div>
   </article>
 </template>
-
 <style scoped>
   .product-card {
     background: #ffffff;
