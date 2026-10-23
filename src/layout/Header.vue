@@ -41,10 +41,12 @@
 <template>
   <header class="top-nav">
     <!-- A) Logo -->
-    <a class="logo" href="#">
+     <RouterLink class="logo" to="/">
       <span class="logo-mark">S</span>
       ShopVue
-    </a>
+    </RouterLink>
+
+    <RouterLink to="/listing">Shop</RouterLink>
 
     <!-- B) Categories — v-for loops over the array -->
     <ul class="nav-categories">

@@ -1,9 +1,7 @@
 <script setup>
-  // Imports
   import { ref } from 'vue'
-  import NavBar from './components/shop/navBar.vue'
-  import productList from './components/shop/productList.vue'
-  import FooterBar from './components/shop/footerBar.vue'
+  import Header from '@/layout/Header.vue'
+  import Footer from '@/layout/Footer.vue'
 
   const searchText = ref('')
   const activeCategory = ref('All')
@@ -15,16 +13,19 @@
 </script>
 
 <template>
-  <NavBar :searchText="searchText"
-          @update:searchText="searchText = $event"
-          :activeCategory="activeCategory"
-          @update:activeCategory="activeCategory = $event"
-          :cart="cart.length"
+  <Header
+    :searchText="searchText"
+    @update:searchText="searchText = $event"
+    :activeCategory="activeCategory"
+    @update:activeCategory="activeCategory = $event"
+    :cart="cart.length"
   />
-  <productList :search="searchText"
-               :category="activeCategory"
-               @add-to-cart="addToCart"
-  />
-  <FooterBar />
-
+  <main>
+    <RouterView
+      :search="searchText"
+      :category="activeCategory"
+      @add-to-cart="addToCart"
+    />
+  </main>
+  <Footer />
 </template>

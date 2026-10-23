@@ -5,8 +5,8 @@
   3) Pass each product into <ProductCard>
 -->
 <script setup>
-  import { ref, onMounted, computed } from 'vue'
-  import ProductCard from './productCard.vue'
+  import { ref, onMounted, computed, watch } from 'vue'
+  import ProductCard from './ProductCard.vue'
 
   const products = ref([])
   const loading = ref(true)
@@ -24,30 +24,42 @@
 
   const emit = defineEmits(['add-to-cart'])
 
-  onMounted(() => {
-    fetch('https://dummyjson.com/products?limit=50')
-      .then((res) => res.json())
-      .then((data) => {
-        products.value = data.products
-        loading.value = false
-      })
-      .catch(() => {
-        loading.value = false
-      })
-  })
+  async function loadProducts() {
+    loading.value = true
+    
+    const q = props.search.trim().toLowerCase()
+    const url = q ? `https://dummyjson.com/products/search?q=${encodeURIComponent(q)}` : 'https://dummyjson.com/products?limit=100'
+
+    try {
+      const res = await fetch(url)
+      const data = await res.json()
+      products.value = data.products
+      console.log(loading.value)
+    } catch {
+      products.value = []
+    } finally {
+      loading.value = false
+    }
+  }
+
+  let timer = null
+  watch(() => props.search, () => {
+    clearTimeout(timer)
+    timer = setTimeout(() => {
+      loadProducts()
+    }, 300)
+  }, { immediate: true })
+
 
   const filteredProducts = computed(() => {
-    const q = props.search.trim().toLowerCase()
     const cat = props.category
 
     return products.value.filter((product) => {
-      const matchSearch = 
-      !q || product.title.toLowerCase().includes(q)
 
       const matchCategory = 
       cat === 'All' || product.category === cat
 
-      return matchSearch && matchCategory
+      return matchCategory
     })
   })
 </script>
