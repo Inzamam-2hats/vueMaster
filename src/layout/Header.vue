@@ -20,6 +20,7 @@
 
 <template>
   <header class="top-nav">
+    <div class="site-header">
     <RouterLink class="logo" to="/">
       <span class="logo-mark">S</span>
       ShopVue
@@ -60,19 +61,24 @@
         </svg>
         <span v-if="cart > 0" class="cart-badge">{{ cart > 9 ? '9+' : cart }}</span>
       </span>
-      <span class="cart-label">Cart</span>
-    </a>
+        <span class="cart-label">Cart</span>
+      </a>
+    </div>
   </header>
 </template>
 
 <style scoped>
   .top-nav {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .site-header {
+    max-width: 1400px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
     gap: 32px;
     padding: 14px 24px;
-    background: #ffffff;
-    border-bottom: 1px solid #e5e7eb;
   }
 
   .logo {

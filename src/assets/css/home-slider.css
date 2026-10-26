@@ -1,0 +1,156 @@
+.home-slider {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(15, 23, 42, 0.12);
+}
+
+.slide {
+  position: relative;
+  min-height: 600px;
+  display: flex;
+  align-items: center;
+}
+
+.slide-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slide-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(15, 23, 42, 0.78) 0%,
+    rgba(15, 23, 42, 0.45) 45%,
+    rgba(15, 23, 42, 0.2) 100%
+  );
+}
+
+.slide-content {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  padding: 48px 100px;
+  color: #ffffff;
+}
+
+.slide-eyebrow {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+
+.slide-content h2 {
+  margin: 0 0 12px;
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  color: #ffffff;
+}
+
+.slide-desc {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.slide-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 22px;
+  border-radius: 10px;
+  background: #3b82f6;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.slide-cta:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Swiper arrows + pagination */
+.home-slider :deep(.swiper-button-prev),
+.home-slider :deep(.swiper-button-next) {
+  width: 48px;
+  height: 48px;
+  margin-top: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.2);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.home-slider :deep(.swiper-button-prev) {
+  left: 18px;
+}
+
+.home-slider :deep(.swiper-button-next) {
+  right: 18px;
+}
+
+.home-slider :deep(.swiper-button-prev:hover),
+.home-slider :deep(.swiper-button-next:hover) {
+  border-color: transparent;
+  color: #ffffff;
+  opacity: 0.6;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.28);
+}
+
+.home-slider :deep(.swiper-button-prev:active),
+.home-slider :deep(.swiper-button-next:active) {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.home-slider :deep(.swiper-button-prev::after),
+.home-slider :deep(.swiper-button-next::after) {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.home-slider :deep(.swiper-button-disabled) {
+  opacity: 0.35;
+}
+
+.home-slider :deep(.swiper-pagination-bullet) {
+  width: 9px;
+  height: 9px;
+  background: rgba(255, 255, 255, 0.55);
+  opacity: 1;
+}
+
+.home-slider :deep(.swiper-pagination-bullet-active) {
+  background: #ffffff;
+  width: 22px;
+  border-radius: 999px;
+}
+
+@media (max-width: 700px) {
+  .slide {
+    min-height: 320px;
+  }
+
+  .slide-content {
+    padding: 32px 24px 48px;
+  }
+
+  .home-slider :deep(.swiper-button-prev),
+  .home-slider :deep(.swiper-button-next) {
+    display: none;
+  }
+}

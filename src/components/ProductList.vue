@@ -42,7 +42,7 @@
     const q = props.search.trim().toLowerCase()
     const url = q
       ? `https://dummyjson.com/products/search?q=${encodeURIComponent(q)}`
-      : 'https://dummyjson.com/products?limit=100'
+      : 'https://dummyjson.com/products'
 
     try {
       const res = await fetch(url)
@@ -114,44 +114,4 @@
   </section>
 </template>
 
-<style scoped>
-  .product-list-wrap {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .page-title {
-    font-size: 28px;
-    font-weight: 700;
-    margin: 0 0 20px;
-    color: #1f2937;
-  }
-
-  .status {
-    color: #9ca3af;
-  }
-
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-  }
-
-  @media (max-width: 1100px) {
-    .product-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-
-  @media (max-width: 900px) {
-    .product-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (max-width: 520px) {
-    .product-grid {
-      grid-template-columns: 1fr;
-    }
-  }
-</style>
+<style scoped src="@/assets/css/product-list.css"></style>

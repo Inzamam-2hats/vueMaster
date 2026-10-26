@@ -1,11 +1,15 @@
 <script setup>
+    import HomeSlider from '@/components/HomeSlider.vue';
 </script>
 
 <template>
   <section class="home">
-    <h1>Welcome to ShopVue</h1>
-    <p>Browse products on the listing page.</p>
-    <RouterLink to="/listing">Go to Shop</RouterLink>
+    <HomeSlider />
+    <div class="home-intro">
+      <h1>Welcome to ShopVue</h1>
+      <p>Browse products on the listing page.</p>
+      <RouterLink class="home-link" to="/listing">Go to Shop</RouterLink>
+    </div>
   </section>
 </template>
 
@@ -13,7 +17,11 @@
   .home {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 24px;
+    padding: 28px 24px 48px;
+  }
+
+  .home-intro {
+    margin-top: 28px;
   }
 
   h1 {
@@ -23,7 +31,17 @@
   }
 
   p {
-    margin: 0;
+    margin: 0 0 14px;
     color: #6b7280;
+  }
+
+  .home-link {
+    color: #3b82f6;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .home-link:hover {
+    text-decoration: underline;
   }
 </style>
