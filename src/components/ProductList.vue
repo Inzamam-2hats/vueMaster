@@ -5,7 +5,7 @@
   3) Pass each product into <ProductCard>
 -->
 <script setup>
-  import { ref, onMounted, computed, watch } from 'vue'
+  import { ref, computed, watch } from 'vue'
   import ProductCard from './ProductCard.vue'
 
   const products = ref([])
@@ -16,9 +16,21 @@
       type: String,
       default: ''
     },
-     category: {
-      type: String,
-      default: 'All'
+    maxPrice: {
+      type: Number,
+      default: 2000
+    },
+    categories: {
+      type: Array,
+      default: () => []
+    },
+    brands: {
+      type: Array,
+      default: () => []
+    },
+    minRating: {
+      type: Number,
+      default: null
     }
   })
 
@@ -26,15 +38,16 @@
 
   async function loadProducts() {
     loading.value = true
-    
+
     const q = props.search.trim().toLowerCase()
-    const url = q ? `https://dummyjson.com/products/search?q=${encodeURIComponent(q)}` : 'https://dummyjson.com/products?limit=100'
+    const url = q
+      ? `https://dummyjson.com/products/search?q=${encodeURIComponent(q)}`
+      : 'https://dummyjson.com/products?limit=100'
 
     try {
       const res = await fetch(url)
       const data = await res.json()
       products.value = data.products
-      console.log(loading.value)
     } catch {
       products.value = []
     } finally {
@@ -43,23 +56,35 @@
   }
 
   let timer = null
-  watch(() => props.search, () => {
-    clearTimeout(timer)
-    timer = setTimeout(() => {
-      loadProducts()
-    }, 300)
-  }, { immediate: true })
+  watch(
+    () => props.search,
+    () => {
+      clearTimeout(timer)
+      const q = props.search.trim()
+      if(q.length > 0 && q.length < 3) {
+        return;
+      }
+        timer = setTimeout(() => {
+          loadProducts()
+        }, 300)
+      },
+      { immediate: true }
+    )
 
-
+  // Sidebar filters stay FE for now (DummyJSON search ≠ full filter API)
   const filteredProducts = computed(() => {
-    const cat = props.category
-
     return products.value.filter((product) => {
+      const matchPrice = product.price <= props.maxPrice
+      const matchCategory =
+        props.categories.length === 0 ||
+        props.categories.includes(product.category)
+      const matchBrand =
+        props.brands.length === 0 ||
+        props.brands.includes(product.brand)
+      const matchRating =
+        props.minRating == null || product.rating >= props.minRating
 
-      const matchCategory = 
-      cat === 'All' || product.category === cat
-
-      return matchCategory
+      return matchPrice && matchCategory && matchBrand && matchRating
     })
   })
 </script>
@@ -91,9 +116,8 @@
 
 <style scoped>
   .product-list-wrap {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px 24px 40px;
+    flex: 1;
+    min-width: 0;
   }
 
   .page-title {

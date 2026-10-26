@@ -1,17 +1,11 @@
 <!--
-  LESSON — Simple NavBar
-  3 parts only: Logo | Categories (v-for) | Search
-  Match this with the header in shop-listing.html
+  LESSON — Header
+  Logo | Shop link | Search | Cart
+  Categories moved to CategoryFilter (left sidebar)
 -->
 <script setup>
-  import { ref } from 'vue'
-
-  const props = defineProps({
+  defineProps({
     searchText: {
-      type: String,
-      required: true
-    },
-    activeCategory: {
       type: String,
       required: true
     },
@@ -21,47 +15,18 @@
     },
   })
 
-  const emit = defineEmits(['update:searchText', 'update:activeCategory'])
-
-  // Categories list — later we can filter products by the active one
-  const categories = ref([
-    { name: 'All', slug: 'All' },
-    { name: 'Beauty', slug: 'beauty' },
-    { name: 'Smartphones', slug: 'smartphones' },
-    { name: 'Laptops', slug: 'laptops' },
-    { name: 'Fragrances', slug: 'fragrances' },
-    { name: 'Groceries', slug: 'groceries' },
-  ])
-
-  const selectCategory = (name) => {
-    emit('update:activeCategory', name)
-  }
+  const emit = defineEmits(['update:searchText'])
 </script>
 
 <template>
   <header class="top-nav">
-    <!-- A) Logo -->
-     <RouterLink class="logo" to="/">
+    <RouterLink class="logo" to="/">
       <span class="logo-mark">S</span>
       ShopVue
     </RouterLink>
 
-    <RouterLink to="/listing">Shop</RouterLink>
+    <RouterLink class="nav-link" to="/listing">Shop</RouterLink>
 
-    <!-- B) Categories — v-for loops over the array -->
-    <ul class="nav-categories">
-      <li v-for="item in categories" :key="item.name">
-        <a
-          :href="item.slug || '#'"
-          :class="{ active: activeCategory === item.slug }"
-          @click.prevent="selectCategory(item.slug)"
-        >
-          {{ item.name }}
-        </a>
-      </li>
-    </ul>
-
-    <!-- C) Search — :value keeps input text in searchText -->
     <div class="nav-search">
       <svg width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24">
         <circle cx="11" cy="11" r="7" />
@@ -74,7 +39,7 @@
         @input="emit('update:searchText', $event.target.value)"
       />
     </div>
-    <!-- D) Cart — Flipkart-style icon + badge -->
+
     <a class="nav-cart" href="#" @click.prevent>
       <span class="cart-icon-wrap">
         <svg
@@ -133,30 +98,17 @@
     font-weight: 700;
   }
 
-  .nav-categories {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    flex: 1;
-  }
-
-  .nav-categories a {
-    display: block;
-    padding: 8px 12px;
-    border-radius: 8px;
+  .nav-link {
     color: #4b5563;
     font-size: 14px;
     font-weight: 500;
     text-decoration: none;
+    flex-shrink: 0;
   }
 
-  .nav-categories a:hover,
-  .nav-categories a.active {
+  .nav-link:hover,
+  .nav-link.router-link-active {
     color: #3b82f6;
-    background: #eff6ff;
   }
 
   .nav-search {
@@ -167,6 +119,7 @@
     border-radius: 8px;
     padding: 8px 14px;
     width: 260px;
+    margin-left: auto;
     flex-shrink: 0;
   }
 
@@ -231,27 +184,16 @@
     line-height: 1;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 520px) {
     .top-nav {
       flex-wrap: wrap;
       gap: 12px;
     }
 
-    .nav-categories {
-      order: 3;
-      width: 100%;
-      overflow-x: auto;
-    }
-
-    .nav-search {
-      margin-left: auto;
-    }
-  }
-
-  @media (max-width: 520px) {
     .nav-search {
       width: 100%;
       margin-left: 0;
+      order: 3;
     }
 
     .cart-label {
