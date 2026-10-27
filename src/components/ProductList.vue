@@ -42,7 +42,7 @@
     const q = props.search.trim().toLowerCase()
     const url = q
       ? `https://dummyjson.com/products/search?q=${encodeURIComponent(q)}`
-      : 'https://dummyjson.com/products'
+      : 'https://dummyjson.com/products?limit=0'
 
     try {
       const res = await fetch(url)

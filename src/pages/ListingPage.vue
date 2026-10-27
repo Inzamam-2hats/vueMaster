@@ -47,7 +47,7 @@
 <style scoped>
   .listing-layout {
     display: grid;
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 300px 1fr;
     gap: 20px;
     max-width: 1400px;
     margin: 0 auto;
