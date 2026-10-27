@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shop Listing — HTML Study Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ========== Design tokens ========== */
+      :root {
+        --blue: #3b82f6;
+        --blue-dark: #2563eb;
+        --pink: #ec4899;
+        --star: #f59e0b;
+        --text: #1f2937;
+        --muted: #9ca3af;
+        --border: #e5e7eb;
+        --bg: #f3f4f6;
+        --white: #ffffff;
+        --radius: 12px;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      button {
+        font-family: inherit;
+        cursor: pointer;
+      }
+
+      input {
+        font-family: inherit;
+      }
+
+      a {
+        color: var(--blue);
+        text-decoration: none;
+      }
+
+      /* ========== Simple header (→ NavBar.vue) ========== */
+      /* Learning parts: 1) Logo  2) Categories  3) Search */
+      .top-nav {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding: 14px 24px;
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text);
+        text-decoration: none;
+        flex-shrink: 0;
+      }
+
+      .logo-mark {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: var(--blue);
+        color: var(--white);
+        display: grid;
+        place-items: center;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .nav-categories {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex: 1;
+      }
+
+      .nav-categories a {
+        display: block;
+        padding: 8px 12px;
+        border-radius: 8px;
+        color: #4b5563;
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+
+      .nav-categories a:hover,
+      .nav-categories a.active {
+        color: var(--blue);
+        background: #eff6ff;
+      }
+
+      .nav-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 8px 14px;
+        width: 260px;
+        flex-shrink: 0;
+      }
+
+      .nav-search input {
+        border: none;
+        background: transparent;
+        outline: none;
+        width: 100%;
+        color: var(--text);
+      }
+
+      .nav-search input::placeholder {
+        color: var(--muted);
+      }
+
+      /* ========== Page shell ========== */
+      .page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px 24px 40px;
+      }
+
+      .page-title {
+        font-size: 28px;
+        font-weight: 700;
+        margin: 0 0 20px;
+      }
+
+      /* ========== Main layout: filters + products ========== */
+      .layout {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+
+      /* ========== Filters sidebar (→ FiltersSidebar.vue later) ========== */
+      .filters {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+      }
+
+      .filters-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+
+      .filter-section {
+        margin-bottom: 24px;
+      }
+
+      .filter-section h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: var(--text);
+      }
+
+      .price-slider {
+        width: 100%;
+        accent-color: var(--blue);
+        margin-bottom: 8px;
+      }
+
+      .price-label {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .filter-list {
+        list-style: none;
+      }
+
+      .filter-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 0;
+        font-size: 13px;
+        color: #4b5563;
+      }
+
+      .filter-list label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+      }
+
+      .filter-list input[type="checkbox"] {
+        accent-color: var(--blue);
+        width: 15px;
+        height: 15px;
+      }
+
+      .count {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .see-more {
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .stars-row {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        color: var(--star);
+      }
+
+      .stars-row .empty {
+        color: #d1d5db;
+      }
+
+      /* ========== Products panel (→ ProductListing.vue later) ========== */
+      .products-panel {
+        min-width: 0;
+      }
+
+      .products-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px 16px;
+        margin-bottom: 16px;
+      }
+
+      .product-search {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 12px;
+        width: 200px;
+      }
+
+      .product-search input {
+        border: none;
+        outline: none;
+        width: 100%;
+        background: transparent;
+      }
+
+      .results-count {
+        color: var(--muted);
+        font-size: 13px;
+        margin-right: auto;
+      }
+
+      .sort-by {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+      }
+
+      .sort-by > span {
+        color: var(--muted);
+        margin-right: 4px;
+      }
+
+      .sort-tab {
+        border: none;
+        background: transparent;
+        padding: 6px 10px;
+        border-radius: 6px;
+        color: #6b7280;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .sort-tab.active {
+        color: var(--blue);
+        background: #eff6ff;
+      }
+
+      .view-toggle {
+        display: flex;
+        gap: 4px;
+        margin-left: 8px;
+      }
+
+      .view-btn {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--border);
+        background: var(--white);
+        border-radius: 6px;
+        color: #6b7280;
+      }
+
+      .view-btn.active {
+        background: var(--blue);
+        border-color: var(--blue);
+        color: var(--white);
+      }
+
+      /* ========== Product grid (→ ProductCard.vue for each card) ========== */
+      .product-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+
+      .product-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .product-image {
+        position: relative;
+        background: #f9fafb;
+        aspect-ratio: 1 / 0.85;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+      }
+
+      .product-image img {
+        max-width: 85%;
+        max-height: 140px;
+        object-fit: contain;
+      }
+
+      .wishlist {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        background: var(--white);
+        color: #9ca3af;
+        display: grid;
+        place-items: center;
+        box-shadow: var(--shadow);
+      }
+
+      .wishlist:hover {
+        color: var(--pink);
+      }
+
+      .product-body {
+        padding: 14px 16px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1;
+      }
+
+      .product-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .price-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .price-current {
+        color: var(--blue);
+        font-weight: 700;
+        font-size: 16px;
+      }
+
+      .price-old {
+        color: var(--muted);
+        text-decoration: line-through;
+        font-size: 13px;
+      }
+
+      .discount {
+        color: var(--pink);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .rating-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+      }
+
+      .rating-value {
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .review-count {
+        color: var(--muted);
+      }
+
+      .card-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 4px;
+      }
+
+      .btn-cart {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 8px 6px;
+        border-radius: 8px;
+        border: 1.5px solid var(--blue);
+        background: var(--white);
+        color: var(--blue);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .btn-buy {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 6px;
+        border-radius: 8px;
+        border: none;
+        background: var(--blue);
+        color: var(--white);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .btn-buy:hover {
+        background: var(--blue-dark);
+      }
+
+      /* ========== Simple footer (→ Footer.vue) ========== */
+      /* Learning parts: 1) Brand  2) Links  3) Copyright */
+      .site-footer {
+        background: var(--white);
+        border-top: 1px solid var(--border);
+        margin-top: 40px;
+        padding: 28px 24px 20px;
+      }
+
+      .footer-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        color: var(--text);
+        text-decoration: none;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 8px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .footer-links a {
+        display: block;
+        padding: 6px 10px;
+        border-radius: 6px;
+        color: #4b5563;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+
+      .footer-links a:hover {
+        color: var(--blue);
+        background: #eff6ff;
+      }
+
+      .footer-copy {
+        width: 100%;
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      /* ========== Responsive ========== */
+      @media (max-width: 1100px) {
+        .product-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .product-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .top-nav {
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .nav-categories {
+          order: 3;
+          width: 100%;
+          overflow-x: auto;
+        }
+
+        .nav-search {
+          margin-left: auto;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .product-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .nav-search {
+          width: 100%;
+          margin-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      STUDY MAP — convert these HTML blocks into Vue components:
+
+      1. .top-nav          → NavBar.vue   (logo + categories + search)
+      2. .site-footer      → Footer.vue   (brand + links + copyright)
+      3. .filters          → FiltersSidebar.vue
+      4. .products-toolbar → ProductsToolbar.vue
+      5. .product-card     → ProductCard.vue  (repeat with v-for)
+      6. whole page        → ShopPage.vue / App.vue
+
+      Open this file in the browser to study the HTML first.
+    -->
+
+    <!-- ========== 1. SIMPLE HEADER: Logo | Categories | Search ========== -->
+    <header class="top-nav">
+      <!-- A) Logo -->
+      <a class="logo" href="#">
+        <span class="logo-mark">S</span>
+        ShopVue
+      </a>
+
+      <!-- B) Categories (good practice for v-for later) -->
+      <ul class="nav-categories">
+        <li><a class="active" href="#">All</a></li>
+        <li><a href="#">Accessories</a></li>
+        <li><a href="#">Appliances</a></li>
+        <li><a href="#">Bags</a></li>
+        <li><a href="#">Electronic</a></li>
+        <li><a href="#">Kitchen</a></li>
+      </ul>
+
+      <!-- C) Search -->
+      <div class="nav-search">
+        <svg width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="7" />
+          <path d="M20 20l-3-3" />
+        </svg>
+        <input type="search" placeholder="Search products..." />
+      </div>
+    </header>
+
+    <main class="page">
+      <h1 class="page-title">Shop</h1>
+
+      <div class="layout">
+        <!-- ========== 3. FILTERS SIDEBAR ========== -->
+        <aside class="filters">
+          <div class="filters-title">
+            Filters
+            <svg width="18" height="18" fill="none" stroke="#9ca3af" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />
+            </svg>
+          </div>
+
+          <!-- Price Range -->
+          <section class="filter-section">
+            <h3>Price Range</h3>
+            <input class="price-slider" type="range" min="0" max="2000" value="1200" />
+            <p class="price-label">$0 - $2000</p>
+          </section>
+
+          <!-- Category -->
+          <section class="filter-section">
+            <h3>Category</h3>
+            <ul class="filter-list">
+              <li>
+                <label><input type="checkbox" /> Accessories</label>
+                <span class="count">25</span>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Appliances</label>
+                <span class="count">54</span>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Bags</label>
+                <span class="count">15</span>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Electronic</label>
+                <span class="count">67</span>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Kitchen</label>
+                <span class="count">14</span>
+              </li>
+            </ul>
+            <a class="see-more" href="#">See more</a>
+          </section>
+
+          <!-- Brands -->
+          <section class="filter-section">
+            <h3>Brands</h3>
+            <ul class="filter-list">
+              <li>
+                <label><input type="checkbox" /> Appliances</label>
+                <span class="count">25</span>
+              </li>
+              <li>
+                <label><input type="checkbox" checked /> Bags</label>
+                <span class="count">54</span>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Electronic</label>
+                <span class="count">15</span>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Kitchen</label>
+                <span class="count">67</span>
+              </li>
+              <li>
+                <label><input type="checkbox" /> Accessories</label>
+                <span class="count">14</span>
+              </li>
+            </ul>
+            <a class="see-more" href="#">See more</a>
+          </section>
+
+          <!-- Ratings -->
+          <section class="filter-section">
+            <h3>Ratings</h3>
+            <ul class="filter-list">
+              <li>
+                <label>
+                  <input type="checkbox" />
+                  <span class="stars-row" aria-label="5 stars">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                  </span>
+                </label>
+                <span class="count">25</span>
+              </li>
+              <li>
+                <label>
+                  <input type="checkbox" checked />
+                  <span class="stars-row" aria-label="4 stars and up">
+                    <span>★</span><span>★</span><span>★</span><span>★</span><span class="empty">★</span>
+                  </span>
+                </label>
+                <span class="count">54</span>
+              </li>
+              <li>
+                <label>
+                  <input type="checkbox" />
+                  <span class="stars-row" aria-label="3 stars and up">
+                    <span>★</span><span>★</span><span>★</span><span class="empty">★</span><span class="empty">★</span>
+                  </span>
+                </label>
+                <span class="count">15</span>
+              </li>
+              <li>
+                <label>
+                  <input type="checkbox" />
+                  <span class="stars-row" aria-label="2 stars and up">
+                    <span>★</span><span>★</span><span class="empty">★</span><span class="empty">★</span><span class="empty">★</span>
+                  </span>
+                </label>
+                <span class="count">67</span>
+              </li>
+              <li>
+                <label>
+                  <input type="checkbox" />
+                  <span class="stars-row" aria-label="1 star and up">
+                    <span>★</span><span class="empty">★</span><span class="empty">★</span><span class="empty">★</span><span class="empty">★</span>
+                  </span>
+                </label>
+                <span class="count">14</span>
+              </li>
+            </ul>
+          </section>
+        </aside>
+
+        <!-- ========== 4 + 5. PRODUCTS TOOLBAR + GRID ========== -->
+        <section class="products-panel">
+          <div class="products-toolbar">
+            <div class="product-search">
+              <svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3-3" />
+              </svg>
+              <input type="search" placeholder="Search..." />
+            </div>
+
+            <span class="results-count">Showing 1-8 of 86 results</span>
+
+            <div class="sort-by">
+              <span>Sort by:</span>
+              <button class="sort-tab active" type="button">Top Rated</button>
+              <button class="sort-tab" type="button">Popular</button>
+              <button class="sort-tab" type="button">Newest</button>
+              <button class="sort-tab" type="button">Price ↕</button>
+            </div>
+
+            <div class="view-toggle">
+              <button class="view-btn active" type="button" title="Grid view" aria-label="Grid view">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                  <rect x="1" y="1" width="6" height="6" rx="1" />
+                  <rect x="9" y="1" width="6" height="6" rx="1" />
+                  <rect x="1" y="9" width="6" height="6" rx="1" />
+                  <rect x="9" y="9" width="6" height="6" rx="1" />
+                </svg>
+              </button>
+              <button class="view-btn" type="button" title="List view" aria-label="List view">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                  <rect x="1" y="2" width="14" height="2" rx="0.5" />
+                  <rect x="1" y="7" width="14" height="2" rx="0.5" />
+                  <rect x="1" y="12" width="14" height="2" rx="0.5" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="product-grid">
+            <!-- Product 1 -->
+            <article class="product-card">
+              <div class="product-image">
+                <button class="wishlist" type="button" aria-label="Add to wishlist">♡</button>
+                <img
+                  src="https://images.unsplash.com/photo-1592078615290-033ee584e267?w=400&h=400&fit=crop"
+                  alt="Montes Scelerisque chair"
+                />
+              </div>
+              <div class="product-body">
+                <h2 class="product-title">Montes Scelerisque</h2>
+                <div class="price-row">
+                  <span class="price-current">$250</span>
+                  <span class="price-old">$650</span>
+                  <span class="discount">60% off</span>
+                </div>
+                <div class="rating-row">
+                  <span class="stars-row"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></span>
+                  <span class="rating-value">4.9</span>
+                  <span class="review-count">778 Reviews</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-cart" type="button">🛒 Add To Cart</button>
+                  <button class="btn-buy" type="button">Buy Now</button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Product 2 -->
+            <article class="product-card">
+              <div class="product-image">
+                <button class="wishlist" type="button" aria-label="Add to wishlist">♡</button>
+                <img
+                  src="https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=400&h=400&fit=crop"
+                  alt="Magnis Porttitor chair"
+                />
+              </div>
+              <div class="product-body">
+                <h2 class="product-title">Magnis Porttitor</h2>
+                <div class="price-row">
+                  <span class="price-current">$150</span>
+                  <span class="price-old">$350</span>
+                  <span class="discount">40% off</span>
+                </div>
+                <div class="rating-row">
+                  <span class="stars-row"><span>★</span><span>★</span><span>★</span><span>★</span><span class="empty">★</span></span>
+                  <span class="rating-value">4.8</span>
+                  <span class="review-count">778 Reviews</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-cart" type="button">🛒 Add To Cart</button>
+                  <button class="btn-buy" type="button">Buy Now</button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Product 3 -->
+            <article class="product-card">
+              <div class="product-image">
+                <button class="wishlist" type="button" aria-label="Add to wishlist">♡</button>
+                <img
+                  src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=400&fit=crop"
+                  alt="Waitomo Auctor chair"
+                />
+              </div>
+              <div class="product-body">
+                <h2 class="product-title">Waitomo Auctor</h2>
+                <div class="price-row">
+                  <span class="price-current">$180</span>
+                  <span class="price-old">$250</span>
+                  <span class="discount">30% off</span>
+                </div>
+                <div class="rating-row">
+                  <span class="stars-row"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></span>
+                  <span class="rating-value">5.0</span>
+                  <span class="review-count">778 Reviews</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-cart" type="button">🛒 Add To Cart</button>
+                  <button class="btn-buy" type="button">Buy Now</button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Product 4 -->
+            <article class="product-card">
+              <div class="product-image">
+                <button class="wishlist" type="button" aria-label="Add to wishlist">♡</button>
+                <img
+                  src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop"
+                  alt="Lectus At. Mauris chair"
+                />
+              </div>
+              <div class="product-body">
+                <h2 class="product-title">Lectus At. Mauris</h2>
+                <div class="price-row">
+                  <span class="price-current">$250</span>
+                  <span class="price-old">$650</span>
+                  <span class="discount">60% off</span>
+                </div>
+                <div class="rating-row">
+                  <span class="stars-row"><span>★</span><span>★</span><span>★</span><span>★</span><span class="empty">★</span></span>
+                  <span class="rating-value">4.5</span>
+                  <span class="review-count">778 Reviews</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-cart" type="button">🛒 Add To Cart</button>
+                  <button class="btn-buy" type="button">Buy Now</button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Product 5 -->
+            <article class="product-card">
+              <div class="product-image">
+                <button class="wishlist" type="button" aria-label="Add to wishlist">♡</button>
+                <img
+                  src="https://images.unsplash.com/photo-1503602642458-232111445657?w=400&h=400&fit=crop"
+                  alt="Pellentesque Habitant stool"
+                />
+              </div>
+              <div class="product-body">
+                <h2 class="product-title">Pellentesque Habitant</h2>
+                <div class="price-row">
+                  <span class="price-current">$120</span>
+                  <span class="price-old">$200</span>
+                  <span class="discount">40% off</span>
+                </div>
+                <div class="rating-row">
+                  <span class="stars-row"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></span>
+                  <span class="rating-value">4.9</span>
+                  <span class="review-count">512 Reviews</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-cart" type="button">🛒 Add To Cart</button>
+                  <button class="btn-buy" type="button">Buy Now</button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Product 6 -->
+            <article class="product-card">
+              <div class="product-image">
+                <button class="wishlist" type="button" aria-label="Add to wishlist">♡</button>
+                <img
+                  src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=400&h=400&fit=crop"
+                  alt="Vestibulum Ante plate"
+                />
+              </div>
+              <div class="product-body">
+                <h2 class="product-title">Vestibulum Ante</h2>
+                <div class="price-row">
+                  <span class="price-current">$90</span>
+                  <span class="price-old">$150</span>
+                  <span class="discount">40% off</span>
+                </div>
+                <div class="rating-row">
+                  <span class="stars-row"><span>★</span><span>★</span><span>★</span><span>★</span><span class="empty">★</span></span>
+                  <span class="rating-value">4.6</span>
+                  <span class="review-count">321 Reviews</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-cart" type="button">🛒 Add To Cart</button>
+                  <button class="btn-buy" type="button">Buy Now</button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Product 7 -->
+            <article class="product-card">
+              <div class="product-image">
+                <button class="wishlist" type="button" aria-label="Add to wishlist">♡</button>
+                <img
+                  src="https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=400&fit=crop"
+                  alt="Nullam Semper lamp"
+                />
+              </div>
+              <div class="product-body">
+                <h2 class="product-title">Nullam Semper</h2>
+                <div class="price-row">
+                  <span class="price-current">$75</span>
+                  <span class="price-old">$120</span>
+                  <span class="discount">37% off</span>
+                </div>
+                <div class="rating-row">
+                  <span class="stars-row"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></span>
+                  <span class="rating-value">4.7</span>
+                  <span class="review-count">445 Reviews</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-cart" type="button">🛒 Add To Cart</button>
+                  <button class="btn-buy" type="button">Buy Now</button>
+                </div>
+              </div>
+            </article>
+
+            <!-- Product 8 -->
+            <article class="product-card">
+              <div class="product-image">
+                <button class="wishlist" type="button" aria-label="Add to wishlist">♡</button>
+                <img
+                  src="https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=400&fit=crop"
+                  alt="Curabitur Blandit bottles"
+                />
+              </div>
+              <div class="product-body">
+                <h2 class="product-title">Curabitur Blandit</h2>
+                <div class="price-row">
+                  <span class="price-current">$45</span>
+                  <span class="price-old">$80</span>
+                  <span class="discount">44% off</span>
+                </div>
+                <div class="rating-row">
+                  <span class="stars-row"><span>★</span><span>★</span><span>★</span><span>★</span><span class="empty">★</span></span>
+                  <span class="rating-value">4.4</span>
+                  <span class="review-count">198 Reviews</span>
+                </div>
+                <div class="card-actions">
+                  <button class="btn-cart" type="button">🛒 Add To Cart</button>
+                  <button class="btn-buy" type="button">Buy Now</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- ========== SIMPLE FOOTER: Brand | Links | Copyright ========== -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <!-- A) Brand -->
+        <a class="footer-brand" href="#">
+          <span class="logo-mark">S</span>
+          ShopVue
+        </a>
+
+        <!-- B) Links (good practice for v-for later) -->
+        <ul class="footer-links">
+          <li><a href="#">About</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Help</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+
+      <!-- C) Copyright -->
+      <p class="footer-copy">© 2026 ShopVue. Built for learning Vue.</p>
+    </footer>
+  </body>
+</html>
