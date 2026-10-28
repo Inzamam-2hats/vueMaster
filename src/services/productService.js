@@ -5,14 +5,26 @@ const BASE_URL = 'https://dummyjson.com'
 
 /**
  * Load one page of products.
- * limit = how many products (e.g. 12)
- * skip  = how many to skip (page 2 → skip 12)
+ * limit  = how many products (e.g. 12)
+ * skip   = how many to skip (page 2 → skip 12)
+ * sortBy = field name (price, rating, discountPercentage, id, …)
+ * order  = asc | desc
  */
-export async function fetchProducts({ limit = 12, skip = 0 } = {}) {
+export async function fetchProducts({
+  limit = 12,
+  skip = 0,
+  sortBy = '',
+  order = 'asc',
+} = {}) {
   const params = new URLSearchParams({
     limit: String(limit),
     skip: String(skip),
   })
+
+  if (sortBy) {
+    params.set('sortBy', sortBy)
+    params.set('order', order === 'desc' ? 'desc' : 'asc')
+  }
 
   const res = await fetch(`${BASE_URL}/products?${params}`)
   if (!res.ok) {

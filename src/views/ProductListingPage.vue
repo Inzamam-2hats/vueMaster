@@ -1,6 +1,6 @@
 <!--
-  Listing page — sidebar UI + product list.
-  Filters are display-only until pagination is done.
+  Listing page — sidebar UI + product list (sort + pagination via URL).
+  Filters are display-only until the filters phase.
 -->
 <script setup>
   import FilterSidebar from '@/components/listing/FilterSidebar.vue'
