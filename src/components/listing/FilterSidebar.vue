@@ -1,29 +1,16 @@
 <!--
-  LESSON — FiltersSidebar (from shop-listing.html)
-  One sidebar, four sections: Price | Category | Brands | Ratings
-  Emits filter changes — parent owns the data and ProductList applies them
+  Filter sidebar — UI only for now.
+  Filter logic (URL + API) comes back later.
 -->
 <script setup>
   import { ref, computed } from 'vue'
 
-  const props = defineProps({
-    maxPrice: { type: Number, default: 2000 },
-    categories: { type: Array, default: () => [] },
-    brands: { type: Array, default: () => [] },
-    minRating: { type: Number, default: null },
-  })
-
-  const emit = defineEmits([
-    'update:maxPrice',
-    'update:categories',
-    'update:brands',
-    'update:minRating',
-  ])
-
   const showAllCategories = ref(false)
   const showAllBrands = ref(false)
 
-  // DummyJSON-friendly slugs so FE filter works with real product data
+  // Display only — not connected to product fetch yet
+  const maxPrice = ref(2000)
+
   const categoryOptions = [
     { name: 'Beauty', slug: 'beauty', count: 12 },
     { name: 'Smartphones', slug: 'smartphones', count: 16 },
@@ -61,25 +48,6 @@
     showAllBrands.value ? brandOptions : brandOptions.slice(0, 5)
   )
 
-  function toggleCategory(slug) {
-    const next = props.categories.includes(slug)
-      ? props.categories.filter((c) => c !== slug)
-      : [...props.categories, slug]
-    emit('update:categories', next)
-  }
-
-  function toggleBrand(name) {
-    const next = props.brands.includes(name)
-      ? props.brands.filter((b) => b !== name)
-      : [...props.brands, name]
-    emit('update:brands', next)
-  }
-
-  function toggleRating(stars) {
-    // Same star again → clear; otherwise set minimum ("X and up")
-    emit('update:minRating', props.minRating === stars ? null : stars)
-  }
-
   function starClass(index, filled) {
     return index <= filled ? '' : 'empty'
   }
@@ -94,7 +62,6 @@
       </svg>
     </div>
 
-    <!-- Price Range -->
     <section class="filter-section">
       <h3>Price Range</h3>
       <input
@@ -102,23 +69,18 @@
         type="range"
         min="0"
         max="2000"
-        :value="maxPrice"
-        @input="emit('update:maxPrice', Number($event.target.value))"
+        v-model.number="maxPrice"
+        disabled
       />
       <p class="price-label">$0 - ${{ maxPrice }}</p>
     </section>
 
-    <!-- Category -->
     <section class="filter-section">
       <h3>Category</h3>
       <ul class="filter-list">
         <li v-for="item in visibleCategories" :key="item.slug">
           <label>
-            <input
-              type="checkbox"
-              :checked="categories.includes(item.slug)"
-              @change="toggleCategory(item.slug)"
-            />
+            <input type="checkbox" disabled />
             {{ item.name }}
           </label>
           <span class="count">{{ item.count }}</span>
@@ -134,17 +96,12 @@
       </button>
     </section>
 
-    <!-- Brands -->
     <section class="filter-section">
       <h3>Brands</h3>
       <ul class="filter-list">
         <li v-for="item in visibleBrands" :key="item.name">
           <label>
-            <input
-              type="checkbox"
-              :checked="brands.includes(item.name)"
-              @change="toggleBrand(item.name)"
-            />
+            <input type="checkbox" disabled />
             {{ item.name }}
           </label>
           <span class="count">{{ item.count }}</span>
@@ -160,17 +117,12 @@
       </button>
     </section>
 
-    <!-- Ratings -->
     <section class="filter-section">
       <h3>Ratings</h3>
       <ul class="filter-list">
         <li v-for="item in ratingOptions" :key="item.stars">
           <label>
-            <input
-              type="checkbox"
-              :checked="minRating === item.stars"
-              @change="toggleRating(item.stars)"
-            />
+            <input type="checkbox" disabled />
             <span class="stars-row" :aria-label="`${item.stars} stars and up`">
               <span
                 v-for="n in 5"
