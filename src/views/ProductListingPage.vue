@@ -19,7 +19,7 @@
 <style scoped>
   .listing-layout {
     display: grid;
-    grid-template-columns: 300px 1fr;
+    grid-template-columns: 280px 1fr;
     gap: 20px;
     max-width: 1400px;
     margin: 0 auto;
@@ -27,9 +27,20 @@
     align-items: start;
   }
 
+  /* Tablet: sidebar on top, then products */
   @media (max-width: 900px) {
     .listing-layout {
       grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 16px 16px 32px;
+    }
+  }
+
+  /* Mobile */
+  @media (max-width: 520px) {
+    .listing-layout {
+      padding: 12px 12px 28px;
+      gap: 12px;
     }
   }
 </style>
