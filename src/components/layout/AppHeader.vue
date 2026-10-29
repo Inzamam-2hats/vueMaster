@@ -1,14 +1,73 @@
 <!--
-  Header — Logo | Shop | Cart
-  Search comes back later (via URL).
+  Header — Logo | Shop | Search (URL ?search=) | Cart
+  Step A1: search only updates the URL (API wired in A2).
 -->
 <script setup>
+  import { ref, watch } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+
   defineProps({
     cart: {
       type: Number,
       default: 0,
     },
   })
+
+  const route = useRoute()
+  const router = useRouter()
+
+  // What the user sees/types (local). Synced FROM the URL on load / back-forward.
+  const searchInput = ref(String(route.query.search || ''))
+
+  let debounceTimer = null
+
+  // When URL search changes (refresh, back, forward, clear link), update the input
+  watch(
+    () => route.query.search,
+    (value) => {
+      const next = String(value || '')
+      if (next !== searchInput.value) {
+        searchInput.value = next
+      }
+    }
+  )
+
+  function writeSearchToUrl(raw) {
+    const value = raw.trim()
+    const query = { ...route.query }
+
+    // New search → start at page 1
+    delete query.page
+
+    if (value) {
+      query.search = value
+    } else {
+      delete query.search
+    }
+
+    const onListing = route.name === 'listing' || route.path.startsWith('/listing')
+
+    router.push({
+      path: onListing ? route.path : '/listing',
+      query,
+    })
+  }
+
+  function onSearchInput(event) {
+    const value = event.target.value
+    searchInput.value = value
+
+    clearTimeout(debounceTimer)
+    debounceTimer = setTimeout(() => {
+      writeSearchToUrl(value)
+    }, 300) // 250–350ms debounce (client brief)
+  }
+
+  function clearSearch() {
+    clearTimeout(debounceTimer)
+    searchInput.value = ''
+    writeSearchToUrl('')
+  }
 </script>
 
 <template>
@@ -20,6 +79,30 @@
       </RouterLink>
 
       <RouterLink class="nav-link" to="/listing">Shop</RouterLink>
+
+      <div class="nav-search">
+        <svg width="16" height="16" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="M20 20l-3-3" />
+        </svg>
+        <input
+          :value="searchInput"
+          type="search"
+          name="search"
+          placeholder="Search products..."
+          aria-label="Search products"
+          @input="onSearchInput"
+        />
+        <button
+          v-if="searchInput"
+          type="button"
+          class="search-clear"
+          aria-label="Clear search"
+          @click="clearSearch"
+        >
+          ×
+        </button>
+      </div>
 
       <a class="nav-cart" href="#" @click.prevent>
         <span class="cart-icon-wrap">
@@ -58,7 +141,7 @@
     margin: 0 auto;
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 24px;
     padding: 14px 24px;
   }
 
@@ -98,12 +181,58 @@
     color: #3b82f6;
   }
 
+  .nav-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border-radius: 8px;
+    padding: 8px 12px;
+    width: min(320px, 100%);
+    margin-left: auto;
+    flex-shrink: 1;
+  }
+
+  .nav-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    color: #1f2937;
+    font-family: inherit;
+    font-size: 14px;
+  }
+
+  .nav-search input::placeholder {
+    color: #9ca3af;
+  }
+
+  /* Hide browser’s built-in clear (✕) on type="search" — we use our own button */
+  .nav-search input[type='search']::-webkit-search-cancel-button,
+  .nav-search input[type='search']::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .search-clear {
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+  }
+
+  .search-clear:hover {
+    color: #4b5563;
+  }
+
   .nav-cart {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
-    margin-left: auto;
     color: #1f2937;
     text-decoration: none;
     font-size: 14px;
@@ -145,6 +274,19 @@
 
   .cart-label {
     line-height: 1;
+  }
+
+  @media (max-width: 700px) {
+    .site-header {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .nav-search {
+      order: 3;
+      width: 100%;
+      margin-left: 0;
+    }
   }
 
   @media (max-width: 520px) {

@@ -1,14 +1,16 @@
 <!--
-  Filter sidebar — UI only for now.
-  Filter logic (URL + API) comes back later.
+  Filter sidebar — B1: category ↔ URL (?category=)
+  Brand / price / rating stay disabled until later steps.
 -->
 <script setup>
   import { ref, computed } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+
+  const route = useRoute()
+  const router = useRouter()
 
   const showAllCategories = ref(false)
   const showAllBrands = ref(false)
-
-  // Display only — not connected to product fetch yet
   const maxPrice = ref(2000)
 
   const categoryOptions = [
@@ -40,6 +42,14 @@
     { stars: 1, count: 14 },
   ]
 
+  // URL may be "laptops" or ["laptops", "smartphones"]
+  function toArray(value) {
+    if (value == null || value === '') return []
+    return Array.isArray(value) ? value.map(String) : [String(value)]
+  }
+
+  const selectedCategories = computed(() => toArray(route.query.category))
+
   const visibleCategories = computed(() =>
     showAllCategories.value ? categoryOptions : categoryOptions.slice(0, 5)
   )
@@ -47,6 +57,24 @@
   const visibleBrands = computed(() =>
     showAllBrands.value ? brandOptions : brandOptions.slice(0, 5)
   )
+
+  function toggleCategory(slug) {
+    const current = selectedCategories.value
+    const next = current.includes(slug)
+      ? current.filter((c) => c !== slug)
+      : [...current, slug]
+
+    const query = { ...route.query }
+    delete query.page // filter change → page 1
+
+    if (next.length) {
+      query.category = next
+    } else {
+      delete query.category
+    }
+
+    router.push({ query })
+  }
 
   function starClass(index, filled) {
     return index <= filled ? '' : 'empty'
@@ -80,7 +108,11 @@
       <ul class="filter-list">
         <li v-for="item in visibleCategories" :key="item.slug">
           <label>
-            <input type="checkbox" disabled />
+            <input
+              type="checkbox"
+              :checked="selectedCategories.includes(item.slug)"
+              @change="toggleCategory(item.slug)"
+            />
             {{ item.name }}
           </label>
           <span class="count">{{ item.count }}</span>

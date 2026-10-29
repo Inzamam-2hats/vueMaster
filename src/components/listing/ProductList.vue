@@ -1,9 +1,9 @@
 <!--
-  Product grid + URL sort + URL pagination
+  Product grid + URL search + category + sort + pagination
   States: loading (skeleton), error + retry, empty, success
 -->
 <script setup>
-  import { ref, computed, watch } from 'vue'
+  import { ref, computed, watch, onUnmounted } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import ProductCard from '@/components/product/ProductCard.vue'
   import ProductPagination from '@/components/listing/ProductPagination.vue'
@@ -20,6 +20,13 @@
   const loading = ref(true)
   const error = ref(null)
 
+  let abortController = null
+
+  function toArray(value) {
+    if (value == null || value === '') return []
+    return Array.isArray(value) ? value.map(String) : [String(value)]
+  }
+
   const currentPage = computed(() => {
     const n = Number(route.query.page) || 1
     return n < 1 ? 1 : n
@@ -27,7 +34,8 @@
 
   const skip = computed(() => (currentPage.value - 1) * pageSize)
 
-  // URL is source of truth for sort
+  const search = computed(() => String(route.query.search || '').trim())
+  const categories = computed(() => toArray(route.query.category))
   const sortBy = computed(() => String(route.query.sortBy || '').trim())
   const order = computed(() => {
     const value = String(route.query.order || 'asc').toLowerCase()
@@ -60,47 +68,114 @@
   const emit = defineEmits(['add-to-cart'])
 
   async function loadProducts() {
+    if (abortController) {
+      abortController.abort()
+    }
+    const controller = new AbortController()
+    abortController = controller
+
     loading.value = true
     error.value = null
 
     try {
-      const data = await fetchProducts({
-        limit: pageSize,
-        skip: skip.value,
-        sortBy: sortBy.value,
-        order: order.value,
-      })
-      products.value = data.products
-      total.value = data.total
+      const cats = categories.value
+      // Multi category, or search+category: DummyJSON can't do both fully → fetch all then filter/paginate
+      const needsClientFilter =
+        cats.length > 1 || (Boolean(search.value) && cats.length > 0)
 
-      // If URL page is past the last page after results change, fix it
+      let list = []
+      let listTotal = 0
+
+      if (needsClientFilter) {
+        const data = await fetchProducts({
+          search: search.value,
+          limit: 0,
+          skip: 0,
+          sortBy: sortBy.value,
+          order: order.value,
+          signal: controller.signal,
+        })
+        list = data.products.filter((p) => cats.includes(p.category))
+        listTotal = list.length
+        products.value = list.slice(skip.value, skip.value + pageSize)
+        total.value = listTotal
+      } else if (cats.length === 1 && !search.value) {
+        // One category, no search → real category API
+        const data = await fetchProducts({
+          category: cats[0],
+          limit: pageSize,
+          skip: skip.value,
+          sortBy: sortBy.value,
+          order: order.value,
+          signal: controller.signal,
+        })
+        products.value = data.products
+        total.value = data.total
+      } else {
+        // Search only, or plain list
+        const data = await fetchProducts({
+          search: search.value,
+          limit: pageSize,
+          skip: skip.value,
+          sortBy: sortBy.value,
+          order: order.value,
+          signal: controller.signal,
+        })
+        products.value = data.products
+        total.value = data.total
+      }
+
       if (total.value > 0 && currentPage.value > totalPages.value) {
         goToPage(totalPages.value)
       }
     } catch (err) {
+      if (err?.name === 'AbortError') {
+        return
+      }
       products.value = []
       total.value = 0
       error.value = err?.message || 'Failed to load products'
     } finally {
-      loading.value = false
+      if (!controller.signal.aborted) {
+        loading.value = false
+      }
     }
   }
 
-  // Refetch when page OR sort changes (Back/Forward + dropdown)
   watch(
-    () => [currentPage.value, sortBy.value, order.value],
+    () => [
+      search.value,
+      categories.value.join(','),
+      currentPage.value,
+      sortBy.value,
+      order.value,
+    ],
     () => {
       loadProducts()
     },
     { immediate: true }
   )
+
+  onUnmounted(() => {
+    if (abortController) {
+      abortController.abort()
+    }
+  })
 </script>
 
 <template>
   <section class="product-list-wrap">
     <div class="listing-toolbar">
-      <p v-if="!loading && !error && total > 0" class="result-count">
-        {{ total }} products
+      <p v-if="!loading && !error" class="result-count">
+        <template v-if="search && total > 0">
+          {{ total }} results for “{{ search }}”
+        </template>
+        <template v-else-if="total > 0">
+          {{ total }} products
+        </template>
+        <template v-else-if="search || categories.length">
+          No products match your filters
+        </template>
       </p>
       <p v-else class="result-count" />
       <SortDropdown />
@@ -118,7 +193,14 @@
 
     <div v-else-if="products.length === 0" class="state-box state-empty">
       <p class="state-title">No products found</p>
-      <p class="state-text">Try another page or check back later.</p>
+      <p class="state-text">
+        <template v-if="search || categories.length">
+          Try clearing search or category filters.
+        </template>
+        <template v-else>
+          Try another page or check back later.
+        </template>
+      </p>
     </div>
 
     <template v-else>
@@ -141,7 +223,6 @@
         @next="goToPage(currentPage + 1)"
         @go-to="goToPage"
       />
-
     </template>
   </section>
 </template>
