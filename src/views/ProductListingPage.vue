@@ -1,6 +1,5 @@
 <!--
-  Listing page — sidebar UI + product list (sort + pagination via URL).
-  Filters are display-only until the filters phase.
+  Listing page — filters (URL) + chips + product list + sort/pagination.
 -->
 <script setup>
   import FilterSidebar from '@/components/listing/FilterSidebar.vue'
@@ -20,7 +19,7 @@
   .listing-layout {
     display: grid;
     grid-template-columns: 280px 1fr;
-    gap: 20px;
+    gap: 40px;
     max-width: 1400px;
     margin: 0 auto;
     padding: 20px 24px 40px;
@@ -31,7 +30,7 @@
   @media (max-width: 900px) {
     .listing-layout {
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 24px;
       padding: 16px 16px 32px;
     }
   }
@@ -40,7 +39,7 @@
   @media (max-width: 520px) {
     .listing-layout {
       padding: 12px 12px 28px;
-      gap: 12px;
+      gap: 24px;
     }
   }
 </style>

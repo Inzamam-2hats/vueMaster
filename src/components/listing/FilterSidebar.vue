@@ -1,84 +1,31 @@
-<!--
-  Filter sidebar — B1: category ↔ URL (?category=)
-  Brand / price / rating stay disabled until later steps.
--->
+<!-- Assembles filter sections; URL sync via useListingQuery. -->
 <script setup>
-  import { ref, computed } from 'vue'
-  import { useRoute, useRouter } from 'vue-router'
+  import { useListingQuery } from '@/composables/useListingQuery.js'
+  import { useFilterFacets } from '@/composables/useFilterFacets.js'
+  import FilterCheckboxGroup from '@/components/listing/filters/FilterCheckboxGroup.vue'
+  import PriceFilter from '@/components/listing/filters/PriceFilter.vue'
+  import RatingFilter from '@/components/listing/filters/RatingFilter.vue'
+  import StockFilter from '@/components/listing/filters/StockFilter.vue'
 
-  const route = useRoute()
-  const router = useRouter()
+  const {
+    categories,
+    brands,
+    maxPrice,
+    minRating,
+    inStockOnly,
+    toggleCategory,
+    toggleBrand,
+    setMaxPrice,
+    toggleRating,
+    toggleInStock,
+  } = useListingQuery()
 
-  const showAllCategories = ref(false)
-  const showAllBrands = ref(false)
-  const maxPrice = ref(2000)
-
-  const categoryOptions = [
-    { name: 'Beauty', slug: 'beauty', count: 12 },
-    { name: 'Smartphones', slug: 'smartphones', count: 16 },
-    { name: 'Laptops', slug: 'laptops', count: 10 },
-    { name: 'Fragrances', slug: 'fragrances', count: 8 },
-    { name: 'Groceries', slug: 'groceries', count: 20 },
-    { name: 'Furniture', slug: 'furniture', count: 14 },
-    { name: 'Tops', slug: 'tops', count: 18 },
-    { name: 'Home Decoration', slug: 'home-decoration', count: 9 },
-  ]
-
-  const brandOptions = [
-    { name: 'Apple', count: 8 },
-    { name: 'Samsung', count: 12 },
-    { name: 'Huawei', count: 6 },
-    { name: 'OPPO', count: 5 },
-    { name: 'HP Pavilion', count: 4 },
-    { name: 'Microsoft Surface', count: 3 },
-    { name: 'Infinix', count: 4 },
-  ]
-
-  const ratingOptions = [
-    { stars: 5, count: 25 },
-    { stars: 4, count: 54 },
-    { stars: 3, count: 15 },
-    { stars: 2, count: 67 },
-    { stars: 1, count: 14 },
-  ]
-
-  // URL may be "laptops" or ["laptops", "smartphones"]
-  function toArray(value) {
-    if (value == null || value === '') return []
-    return Array.isArray(value) ? value.map(String) : [String(value)]
-  }
-
-  const selectedCategories = computed(() => toArray(route.query.category))
-
-  const visibleCategories = computed(() =>
-    showAllCategories.value ? categoryOptions : categoryOptions.slice(0, 5)
-  )
-
-  const visibleBrands = computed(() =>
-    showAllBrands.value ? brandOptions : brandOptions.slice(0, 5)
-  )
-
-  function toggleCategory(slug) {
-    const current = selectedCategories.value
-    const next = current.includes(slug)
-      ? current.filter((c) => c !== slug)
-      : [...current, slug]
-
-    const query = { ...route.query }
-    delete query.page // filter change → page 1
-
-    if (next.length) {
-      query.category = next
-    } else {
-      delete query.category
-    }
-
-    router.push({ query })
-  }
-
-  function starClass(index, filled) {
-    return index <= filled ? '' : 'empty'
-  }
+  const {
+    facetsLoading,
+    categoryOptions,
+    brandOptions,
+    ratingOptions,
+  } = useFilterFacets()
 </script>
 
 <template>
@@ -90,84 +37,44 @@
       </svg>
     </div>
 
-    <section class="filter-section">
-      <h3>Price Range</h3>
-      <input
-        class="price-slider"
-        type="range"
-        min="0"
-        max="2000"
-        v-model.number="maxPrice"
-        disabled
-      />
-      <p class="price-label">$0 - ${{ maxPrice }}</p>
-    </section>
+    <p v-if="facetsLoading" class="facets-loading">Loading filters…</p>
 
-    <section class="filter-section">
-      <h3>Category</h3>
-      <ul class="filter-list">
-        <li v-for="item in visibleCategories" :key="item.slug">
-          <label>
-            <input
-              type="checkbox"
-              :checked="selectedCategories.includes(item.slug)"
-              @change="toggleCategory(item.slug)"
-            />
-            {{ item.name }}
-          </label>
-          <span class="count">{{ item.count }}</span>
-        </li>
-      </ul>
-      <button
-        v-if="categoryOptions.length > 5"
-        type="button"
-        class="see-more"
-        @click="showAllCategories = !showAllCategories"
-      >
-        {{ showAllCategories ? 'See less' : 'See more' }}
-      </button>
-    </section>
+    <PriceFilter :model-value="maxPrice" @update:model-value="setMaxPrice" />
 
-    <section class="filter-section">
-      <h3>Brands</h3>
-      <ul class="filter-list">
-        <li v-for="item in visibleBrands" :key="item.name">
-          <label>
-            <input type="checkbox" disabled />
-            {{ item.name }}
-          </label>
-          <span class="count">{{ item.count }}</span>
-        </li>
-      </ul>
-      <button
-        v-if="brandOptions.length > 5"
-        type="button"
-        class="see-more"
-        @click="showAllBrands = !showAllBrands"
-      >
-        {{ showAllBrands ? 'See less' : 'See more' }}
-      </button>
-    </section>
+    <FilterCheckboxGroup
+      title="Category"
+      :options="categoryOptions"
+      :selected="categories"
+      @toggle="toggleCategory"
+    />
 
-    <section class="filter-section">
-      <h3>Ratings</h3>
-      <ul class="filter-list">
-        <li v-for="item in ratingOptions" :key="item.stars">
-          <label>
-            <input type="checkbox" disabled />
-            <span class="stars-row" :aria-label="`${item.stars} stars and up`">
-              <span
-                v-for="n in 5"
-                :key="n"
-                :class="starClass(n, item.stars)"
-              >★</span>
-            </span>
-          </label>
-          <span class="count">{{ item.count }}</span>
-        </li>
-      </ul>
-    </section>
+    <FilterCheckboxGroup
+      title="Brands"
+      :options="brandOptions"
+      :selected="brands"
+      @toggle="toggleBrand"
+    />
+
+    <RatingFilter
+      :options="ratingOptions"
+      :model-value="minRating"
+      @update:model-value="toggleRating"
+    />
+
+    <StockFilter
+      :model-value="inStockOnly"
+      @update:model-value="toggleInStock"
+    />
   </aside>
 </template>
 
-<style scoped src="@/assets/css/filters-sidebar.css"></style>
+<!-- Shared with child filter components (not scoped). -->
+<style src="@/assets/css/filters-sidebar.css"></style>
+
+<style scoped>
+  .facets-loading {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: #9ca3af;
+  }
+</style>
