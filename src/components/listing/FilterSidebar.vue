@@ -1,29 +1,18 @@
 <!--
-  LESSON — FiltersSidebar (from shop-listing.html)
-  One sidebar, four sections: Price | Category | Brands | Ratings
-  Emits filter changes — parent owns the data and ProductList applies them
+  Filter sidebar — B1: category ↔ URL (?category=)
+  Brand / price / rating stay disabled until later steps.
 -->
 <script setup>
   import { ref, computed } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
 
-  const props = defineProps({
-    maxPrice: { type: Number, default: 2000 },
-    categories: { type: Array, default: () => [] },
-    brands: { type: Array, default: () => [] },
-    minRating: { type: Number, default: null },
-  })
-
-  const emit = defineEmits([
-    'update:maxPrice',
-    'update:categories',
-    'update:brands',
-    'update:minRating',
-  ])
+  const route = useRoute()
+  const router = useRouter()
 
   const showAllCategories = ref(false)
   const showAllBrands = ref(false)
+  const maxPrice = ref(2000)
 
-  // DummyJSON-friendly slugs so FE filter works with real product data
   const categoryOptions = [
     { name: 'Beauty', slug: 'beauty', count: 12 },
     { name: 'Smartphones', slug: 'smartphones', count: 16 },
@@ -53,6 +42,14 @@
     { stars: 1, count: 14 },
   ]
 
+  // URL may be "laptops" or ["laptops", "smartphones"]
+  function toArray(value) {
+    if (value == null || value === '') return []
+    return Array.isArray(value) ? value.map(String) : [String(value)]
+  }
+
+  const selectedCategories = computed(() => toArray(route.query.category))
+
   const visibleCategories = computed(() =>
     showAllCategories.value ? categoryOptions : categoryOptions.slice(0, 5)
   )
@@ -62,22 +59,21 @@
   )
 
   function toggleCategory(slug) {
-    const next = props.categories.includes(slug)
-      ? props.categories.filter((c) => c !== slug)
-      : [...props.categories, slug]
-    emit('update:categories', next)
-  }
+    const current = selectedCategories.value
+    const next = current.includes(slug)
+      ? current.filter((c) => c !== slug)
+      : [...current, slug]
 
-  function toggleBrand(name) {
-    const next = props.brands.includes(name)
-      ? props.brands.filter((b) => b !== name)
-      : [...props.brands, name]
-    emit('update:brands', next)
-  }
+    const query = { ...route.query }
+    delete query.page // filter change → page 1
 
-  function toggleRating(stars) {
-    // Same star again → clear; otherwise set minimum ("X and up")
-    emit('update:minRating', props.minRating === stars ? null : stars)
+    if (next.length) {
+      query.category = next
+    } else {
+      delete query.category
+    }
+
+    router.push({ query })
   }
 
   function starClass(index, filled) {
@@ -94,7 +90,6 @@
       </svg>
     </div>
 
-    <!-- Price Range -->
     <section class="filter-section">
       <h3>Price Range</h3>
       <input
@@ -102,13 +97,12 @@
         type="range"
         min="0"
         max="2000"
-        :value="maxPrice"
-        @input="emit('update:maxPrice', Number($event.target.value))"
+        v-model.number="maxPrice"
+        disabled
       />
       <p class="price-label">$0 - ${{ maxPrice }}</p>
     </section>
 
-    <!-- Category -->
     <section class="filter-section">
       <h3>Category</h3>
       <ul class="filter-list">
@@ -116,7 +110,7 @@
           <label>
             <input
               type="checkbox"
-              :checked="categories.includes(item.slug)"
+              :checked="selectedCategories.includes(item.slug)"
               @change="toggleCategory(item.slug)"
             />
             {{ item.name }}
@@ -134,17 +128,12 @@
       </button>
     </section>
 
-    <!-- Brands -->
     <section class="filter-section">
       <h3>Brands</h3>
       <ul class="filter-list">
         <li v-for="item in visibleBrands" :key="item.name">
           <label>
-            <input
-              type="checkbox"
-              :checked="brands.includes(item.name)"
-              @change="toggleBrand(item.name)"
-            />
+            <input type="checkbox" disabled />
             {{ item.name }}
           </label>
           <span class="count">{{ item.count }}</span>
@@ -160,17 +149,12 @@
       </button>
     </section>
 
-    <!-- Ratings -->
     <section class="filter-section">
       <h3>Ratings</h3>
       <ul class="filter-list">
         <li v-for="item in ratingOptions" :key="item.stars">
           <label>
-            <input
-              type="checkbox"
-              :checked="minRating === item.stars"
-              @change="toggleRating(item.stars)"
-            />
+            <input type="checkbox" disabled />
             <span class="stars-row" :aria-label="`${item.stars} stars and up`">
               <span
                 v-for="n in 5"

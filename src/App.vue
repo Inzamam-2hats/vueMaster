@@ -1,9 +1,8 @@
 <script setup>
   import { ref } from 'vue'
-  import Header from '@/layout/Header.vue'
-  import Footer from '@/layout/Footer.vue'
+  import AppHeader from '@/components/layout/AppHeader.vue'
+  import AppFooter from '@/components/layout/AppFooter.vue'
 
-  const searchText = ref('')
   const cart = ref([])
 
   const addToCart = (id) => {
@@ -12,16 +11,9 @@
 </script>
 
 <template>
-  <Header
-    :searchText="searchText"
-    @update:searchText="searchText = $event"
-    :cart="cart.length"
-  />
+  <AppHeader :cart="cart.length" />
   <main>
-    <RouterView
-      :search="searchText"
-      @add-to-cart="addToCart"
-    />
+    <RouterView @add-to-cart="addToCart" />
   </main>
-  <Footer />
+  <AppFooter />
 </template>

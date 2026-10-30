@@ -1,5 +1,5 @@
 <script setup>
-    import HomeSlider from '@/components/HomeSlider.vue';
+    import HomeSlider from '@/components/home/HomeSlider.vue'
 </script>
 
 <template>
